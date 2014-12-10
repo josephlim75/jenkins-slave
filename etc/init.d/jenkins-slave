@@ -95,6 +95,7 @@ do_start()
     # the default location is /var/run/jenkins/jenkins.pid but the parent directory needs to be created
     mkdir `dirname $PIDFILE` > /dev/null 2>&1 || true
     chown $JENKINS_USER `dirname $PIDFILE`
+
     # Return
     #   0 if daemon has been started
     #   1 if daemon was already running
@@ -122,25 +123,29 @@ do_start()
     $SU -l $JENKINS_USER --shell=/bin/bash -c "$DAEMON $DAEMON_ARGS -- $JAVA $JAVA_ARGS -jar $JENKINS_WAR $JENKINS_ARGS" || return 2
 }
 
-
 #
 # Verify that all jenkins processes have been shutdown
 # and if not, then do killall for them
-# 
-get_running() 
+#
+get_running()
 {
     return `ps -U $JENKINS_USER --no-headers -f | egrep -e '(java|daemon)' | grep -c . `
 }
 
-force_stop() 
+#
+# Force stop by killing all the jenkins daemon processes
+#
+force_stop()
 {
     get_running
-    if [ $? -ne 0 ]; then 
-	killall -u $JENKINS_USER java daemon || return 3
+    if [ $? -ne 0 ]; then
+    killall -u $JENKINS_USER java daemon || return 3
     fi
 }
 
+#
 # Get the status of the daemon process
+#
 get_daemon_status()
 {
     $DAEMON $DAEMON_ARGS --running || return 1
@@ -157,22 +162,22 @@ do_stop()
     #   1 if daemon was already stopped
     #   2 if daemon could not be stopped
     #   other if a failure occurred
-    get_daemon_status 
+    get_daemon_status
     case "$?" in
-	0) 
-	    $DAEMON $DAEMON_ARGS --stop || return 2
+    0)
+        $DAEMON $DAEMON_ARGS --stop || return 2
         # wait for the process to really terminate
         for n in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do
             sleep 1
             $DAEMON $DAEMON_ARGS --running || break
         done
         if get_daemon_status; then
-	        force_stop || return 3
+            force_stop || return 3
         fi
-	    ;;
-	*)
-	    force_stop || return 3
-	    ;;
+        ;;
+    *)
+        force_stop || return 3
+        ;;
     esac
 
     # Many daemons don't delete their pidfiles when they exit.
@@ -214,41 +219,41 @@ case "$1" in
         esac
         ;;
       *)
-  	# Failed to stop
-	log_end_msg 1
-	;;
+      # Failed to stop
+    log_end_msg 1
+    ;;
     esac
     ;;
   status)
-	get_daemon_status
-	case "$?" in 
-	 0) 
-		echo "$DESC is running with the pid `cat $PIDFILE`"
-		rc=0
-		;;
-	*) 
-		get_running
-		procs=$?
-		if [ $procs -eq 0 ]; then 
-			echo -n "$DESC is not running"
-			if [ -f $PIDFILE ]; then 
-				echo ", but the pidfile ($PIDFILE) still exists"
-				rc=1
-			else 
-				echo
-				rc=3
-			fi
-		
-		else 
-			echo "$procs instances of jenkins are running at the moment"
-			echo "but the pidfile $PIDFILE is missing"
-			rc=0
-		fi
-		
-		exit $rc
-		;;
-	esac
-	;;
+    get_daemon_status
+    case "$?" in
+     0)
+        echo "$DESC is running with the pid `cat $PIDFILE`"
+        rc=0
+        ;;
+    *)
+        get_running
+        procs=$?
+        if [ $procs -eq 0 ]; then
+            echo -n "$DESC is not running"
+            if [ -f $PIDFILE ]; then
+                echo ", but the pidfile ($PIDFILE) still exists"
+                rc=1
+            else
+                echo
+                rc=3
+            fi
+
+        else
+            echo "$procs instances of jenkins are running at the moment"
+            echo "but the pidfile $PIDFILE is missing"
+            rc=0
+        fi
+
+        exit $rc
+        ;;
+    esac
+    ;;
   *)
     echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
     exit 3
