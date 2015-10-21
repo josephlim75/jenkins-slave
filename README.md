@@ -7,7 +7,7 @@ To install, run:
 
     $ sudo cp -r etc /
 
-You can customize the slave properties by editing the ``etc/defaults/jenkins-slave`` file
+You can customize the slave properties by editing the ``etc/default/jenkins-slave`` file
 
     # java location
     JAVA=/usr/bin/java
