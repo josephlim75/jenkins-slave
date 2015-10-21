@@ -77,7 +77,7 @@ do_start()
     $DAEMON $DAEMON_ARGS --running && return 1
 
     # download the latest slave.jar
-    wget -O $JENKINS_JAR http://$JENKINS_MASTER/jnlpJars/slave.jar
+    wget -O $JENKINS_JAR $JENKINS_JAR_REMOTE_PATH
 
     # --user in daemon doesn't prepare environment variables like HOME, USER, LOGNAME or USERNAME,
     # so we let su do so for us now

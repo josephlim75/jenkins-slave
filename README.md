@@ -36,6 +36,9 @@ You can customize the slave properties by editing the ``etc/defaults/jenkins-sla
     # hostname of master that this slave is to be connected to
     JENKINS_MASTER=my-master-node.my-domain.com
 
+    # remote location of jenkins slave jar
+    JENKINS_JAR_REMOTE_PATH="http://$JENKINS_MASTER/jnlpJars/slave.jar"
+
     # name of this worker node
     JENKINS_NAME=linux-01
 
