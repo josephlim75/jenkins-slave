@@ -1,4 +1,4 @@
-# defaults for jenkins continuous integartion slave worker
+# defaults for jenkins continuous integration slave worker
 NAME=jenkins-slave
 
 # java location
@@ -26,6 +26,9 @@ JENKINS_LOG=$JENKINS_HOME/jenkins.log
 
 # hostname of master that this slave is to be connected to
 JENKINS_MASTER=my-master.my-domain.com
+
+# remote location of jenkins slave jar
+JENKINS_JAR_REMOTE_PATH="http://$JENKINS_MASTER/jnlpJars/slave.jar"
 
 # name of this node
 JENKINS_NAME=linux-01
